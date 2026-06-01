@@ -1,0 +1,13 @@
+{
+  "name": "madi-skills-marketplace",
+  "owner": {
+    "name": "Madi Abio"
+  },
+  "plugins": [
+    {
+      "name": "madi-skills",
+      "source": "./plugins/madi-skills",
+      "description": "Madi's engineering skill set + Matt-Pocock skills + agents. Start with /madi-skills:tell-me-what-you-can-do."
+    }
+  ]
+}
