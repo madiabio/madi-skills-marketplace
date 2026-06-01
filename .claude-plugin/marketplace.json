@@ -5,9 +5,9 @@
   },
   "plugins": [
     {
-      "name": "madi-skills",
+      "name": "madi",
       "source": "./plugins/madi-skills",
-      "description": "Madi's engineering skill set + Matt-Pocock skills + agents. Start with /madi-skills:tell-me-what-you-can-do."
+      "description": "Madi's engineering skill set + Matt-Pocock skills + agents. Start with /madi:tell-me-what-you-can-do."
     }
   ]
 }

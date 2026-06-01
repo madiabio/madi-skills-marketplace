@@ -1,11 +1,11 @@
-# madi-skills
+# madi-skills-marketplace
 
-Madi's Claude Code engineering skills, agents, and workflows, packaged as a plugin so you can install them in one step. After installing, run **`/madi-skills:tell-me-what-you-can-do`** for a guided tour.
+Madi's Claude Code engineering skills, agents, and workflows, packaged as a plugin so you can install them in one step. After installing, run **`/madi:tell-me-what-you-can-do`** for a guided tour.
 
 ## What's inside
 
 - **Madi's custom skills** — spec-driven development, in-flight code-design enforcement, plan grilling, decision research, session cleanup/handoff, and more.
-- **Matt-Pocock engineering skills** — `diagnose`, `tdd`, `zoom-out`, `improve-codebase-architecture`, `triage`, `to-issues`, `to-prd`. These assume a repo set up with the Matt-Pocock conventions (`CONTEXT.md`, `docs/adr/`); run `/madi-skills:setup-matt-pocock-skills` to scaffold one.
+- **Matt-Pocock engineering skills** — `diagnose`, `tdd`, `zoom-out`, `improve-codebase-architecture`, `triage`, `to-issues`, `to-prd`. These assume a repo set up with the Matt-Pocock conventions (`CONTEXT.md`, `docs/adr/`); run `/madi:setup-matt-pocock-skills` to scaffold one.
 - **Agents** — `topic-researcher`, `refactor-agent`, `frontend-ui-architect`, `workflow-optimizer`, `autonomous-griller`.
 
 Not bundled: **GSD** (a separate heavyweight planning framework) and **Superpowers** (a separate marketplace). The tour skill points you at GSD's install with security/fork caveats if you want it.
@@ -16,13 +16,13 @@ Replace `<github-user>/madi-skills-marketplace` with wherever this repo is hoste
 
 ```shell
 /plugin marketplace add <github-user>/madi-skills-marketplace
-/plugin install madi-skills@madi-skills-marketplace
+/plugin install madi@madi-skills-marketplace
 ```
 
 Then in any session:
 
 ```shell
-/madi-skills:tell-me-what-you-can-do
+/madi:tell-me-what-you-can-do
 ```
 
 Run it **cold** (start of a session) for a full grouped overview of everything, or **mid-task** to get the 2–4 skills most relevant to what you're doing right now.
@@ -33,7 +33,7 @@ Run it **cold** (start of a session) for a full grouped overview of everything, 
 claude --plugin-dir /path/to/madi-skills-marketplace/plugins/madi-skills
 ```
 
-Plugin skills are namespaced (`/madi-skills:<skill>`) so they never collide with your own.
+Plugin skills are namespaced (`/madi:<skill>`) so they never collide with your own.
 
 ## Updating
 
