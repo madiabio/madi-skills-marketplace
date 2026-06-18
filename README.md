@@ -12,10 +12,8 @@ Not bundled: **GSD** (a separate heavyweight planning framework) and **Superpowe
 
 ## Install
 
-Replace `<github-user>/madi-skills-marketplace` with wherever this repo is hosted.
-
 ```shell
-/plugin marketplace add <github-user>/madi-skills-marketplace
+/plugin marketplace add madiabio/madi-skills-marketplace
 /plugin install madi@madi-skills-marketplace
 ```
 
