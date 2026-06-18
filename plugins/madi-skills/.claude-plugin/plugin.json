@@ -1,7 +1,7 @@
 {
   "name": "madi",
   "description": "Madi's engineering skill set: spec-driven development, TDD, disciplined debugging, grilling/spec workflows, code-design enforcement, plus the Matt-Pocock engineering skills and supporting agents. Run /madi:tell-me-what-you-can-do for a guided tour.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Madi Abio"
   }
