@@ -65,6 +65,10 @@ Before writing tests or code, decide where the work lands — **let the repo's e
 
 ### 5. Build the spec, one section at a time — TDD with a test-review loop
 
+**Before starting: identify parallelisable sections.** Read all the spec's acceptance-criterion clusters and ask: which sections have no file-overlap and no data dependency on each other? Dispatch those in parallel — one subagent per independent section — in a single message. Only sections that genuinely depend on another section's output (e.g. a caller that imports a type the previous section defines) must be serialised. Default to parallelism; serialisation needs a real dependency to justify it, not caution or habit.
+
+**When a spec maps to multiple independent slices** (e.g. an ASDLC story with ELITE-34/35/36), dispatch all independent slices in parallel upfront — don't wait for one to finish before starting the next.
+
 Implement the spec **section by section** (one acceptance-criterion / design-goal cluster at a time), not all at once. For *each* section, run this loop before touching implementation code:
 
 **a. Write the failing tests for this section (test-writer).** Spawn a `test-writer` subagent (or use `superpowers:test-driven-development` inline if the section is tiny). It writes tests that target *this section's goals* and watches them fail for the right reason (red). No implementation yet.
@@ -107,7 +111,8 @@ Run exactly the checks the spec's "Test plan" section names. Every item must pas
 - **No production code before the spec exists** for non-trivial work
 - **The spec defines goals, not code.** Specs should rarely contain code — only an exact contract (API signature, wire format, data shape) that prose can't express unambiguously. Code that explains *how* you'll build it belongs in the implementation; putting it in the spec defeats spec-first thinking.
 - **No implementation before a reviewed, goal-aligned failing test.** Within each section: write the failing test, have it reviewed against the spec's goal (via `/step-back`), align, *then* implement. A passing test that doesn't prove the goal is worse than no test.
-- **One section at a time.** Don't write all tests or all code up front — cycle test→review→implement per spec section, so each goal is locked in before the next.
+- **Parallelise independent sections by default.** Before starting implementation, scan all spec sections for file-overlap and data dependencies. Dispatch independent sections (and independent slices) in parallel — a single message with multiple Agent tool calls. Only serialise when section N genuinely needs section N-1's output. Never serialise out of habit or caution — the cost of needless serialisation lands entirely on the user's wait time.
+- **One section at a time per dependency chain.** Within a dependency chain, cycle test→review→implement per section so each goal is locked in before the next.
 - **Spec and code never diverge** — if you change direction, change the spec first
 - **Keep the spec short** — goal, behavior/design goals, decisions, scope, tests. If it's longer than the code, it's too long
 - **A spec is not a plan dump** — it's the contract the tests must encode and the code must satisfy, written so verification is mechanical
