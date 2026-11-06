@@ -15,7 +15,7 @@ Before writing the spec, **find out whether the repo already has its own convent
 
 - **Spec / planning format** — existing `.claude/specs/`, `docs/specs/`, `specs/`, a PRD/ADR layout (`docs/adr/`), `CONTEXT.md`, or a template file? If so, match it.
 - **Git / PR workflow** — does the repo use PRs at all, or commit straight to the default branch (check `CLAUDE.md`/`AGENTS.md`, ADRs, and memories — e.g. the dotfiles "commit straight to main" rule)? Branch naming?
-- **PR-body convention** — a `.github/PULL_REQUEST_TEMPLATE.md`, an `## Agent skills` / contributing block, or a recognisable house style in recent merged PRs (`gh pr list --state merged` + view a couple)? Authorship-credit convention (e.g. the `coderabbit-resolve` `Author: Claude …` style)?
+- **PR-body convention** — a `.github/PULL_REQUEST_TEMPLATE.md`, an `## Agent skills` / contributing block, or a recognisable house style in recent merged PRs (`gh pr list --state merged` + view a couple)? Authorship-credit convention (e.g. the `review-resolve` `— Claude <model> (<effort> effort), with Madi driving.` style)?
 - **Docstring / structure / testing conventions** — already covered by `swe-best-practices` at build time, but note anything spec-relevant.
 
 Then decide, and **state the decision in one line before proceeding**:
@@ -33,6 +33,36 @@ Create a markdown spec. Location: `.claude/specs/<slug>.md` (or the repo's exist
 **A spec defines design *goals*, not implementation. It should rarely contain code.** The whole point of spec-first is to think at the level of *what* must be true and *why* before getting pulled into *how* — dropping code into the spec collapses that altitude and quietly turns the spec into a draft implementation, which defeats the purpose. So write the spec in terms of behavior, constraints, and acceptance criteria. Only include a code snippet when a contract genuinely can't be expressed in prose without ambiguity — an exact public API signature, a wire/serialization format, a specific data shape another system depends on. If you're tempted to write code to explain *how* you'll build it, that belongs in the implementation, not the spec.
 
 Use the house spec shape in **`references/spec-template.md`** as the fallback — *unless* step 0 found a repo spec convention to align with, in which case follow that.
+
+### 1b. Check for shared state with an external source of truth (mandatory)
+
+Answer one question in the spec, in one line: **does this work read or write state whose truth lives in
+another system** (a payment provider, Medicare, My Health Record, an email or SMS provider), **or state
+that several features or stories share and must keep consistent?** If no, write "No shared external
+state" in the spec and move on. If yes, the spec must also contain the two items below before step 2.
+Planning features that plug into a subsystem nobody designed is how that subsystem gets built
+implicitly, one review finding at a time (the ELITE-2608 Tyro billing stack, 2026-11).
+
+1. **The subsystem first.** Name the thing the features plug into (e.g. "payment settlement"), and
+   spec it before, or at the top of, the feature specs. Cover its data model (what is recorded, and
+   whether facts are appended or a slot is overwritten), its states and who moves them, who writes
+   it, and how our copy converges with the external truth (webhook, reconcile sweep). The feature
+   specs then refer to it rather than each re-deciding it. If the external system's state model is
+   unknown (what a refund, decline, timeout or outage looks like), spike it against its staging
+   environment before designing.
+2. **An invariants and failure-mode table.** List each invariant the subsystem must keep (e.g. "money
+   taken is never forgotten", "never charged twice"). Under each, add one row per failure scenario,
+   with the expected outcome. The scenarios are: a crash between two steps, two writers at once, the
+   external system down, a retry or duplicate message, and the external state changing after our
+   read. Every row becomes an acceptance criterion and an integration test. A row whose outcome is
+   "prevented by a read" across two systems is a red flag: name how it is detected and compensated
+   instead.
+
+**Flag, when warranted: walking skeleton and boundary review.** If the subsystem will span more than
+about three stories or PRs, or the work will be stacked, *recommend* (don't impose) two things, and let
+the user decide:
+- build a crude end-to-end skeleton of the subsystem's lifecycle first;
+- review the foundation PRs as a whole flow before stacking feature PRs on top.
 
 ### 2. Sharpen the spec
 
@@ -60,8 +90,8 @@ Before writing tests or code, decide where the work lands — **let the repo's e
   - **Key decisions** — lifted from the spec's "Key decisions"; refine as the build teaches you more.
   - **Scope / out of scope** — what this PR does and explicitly does NOT do (from the spec).
   - **Relationship to other PRs** — dependencies, what's deferred to a follow-up.
-- **Credit authorship** per the repo's convention. If the repo follows the `coderabbit-resolve` style, that means an `Author: Claude <model>, <effort>` line and the standard `🤖 Generated with Claude Code` footer — match whatever sibling PRs in the repo already do.
-- Keep it a **draft** until close-out (step 7). Draft signals "not ready to merge" while still surfacing the work.
+- **Credit authorship** per the repo's convention. If the repo follows the `review-resolve` style, that means a `<sub>— Claude <model> (<effort> effort), with Madi driving.</sub>` line and the standard `🤖 Generated with Claude Code` footer — match whatever sibling PRs in the repo already do.
+- Keep it a **draft**, always. Never mark it ready: the user publishes it after reviewing it, and once a PR exists its draft state is theirs to change, in either direction.
 
 ### 5. Build the spec, one section at a time — TDD with a test-review loop
 
@@ -98,17 +128,18 @@ Run exactly the checks the spec's "Test plan" section names. Every item must pas
 - All test-plan items green (verified, not assumed)
 - Spec's "Out of scope" honored — no scope creep
 - Mark the spec `Status: implemented` (or delete it if it was a throwaway session artefact — see `/clean-up`)
-- **Finalise the PR body (if a PR exists).** Before flipping out of draft, do a freshness pass so the body is an accurate final record:
+- **Finalise the PR body (if a PR exists).** Do a freshness pass so the body is an accurate final record:
   - Flip the status header from `🚧 Draft — implementing` to `✅ Implemented — ready for review`.
   - Every "what will land" checklist item is ticked and reflects what actually shipped; key decisions and scope match the merged code.
   - **Add a "🧪 Manual test" section if manual verification is relevant** — i.e. when the change has user-observable behaviour a reviewer should confirm by hand (a UI affordance, an end-to-end flow, anything tests can't fully assert). Use the manual-test block in **`references/pr-body-template.md`** as the shape: a **checklist of concrete steps** a human ticks as they go — setup (how to run the stack / where to look), the exact steps, what they should observe at each, and how to cross-check it's real (e.g. against DevTools, logs, or a second source). Call out any environment caveats (local vs remote, "only works after PR #X lands"). Skip this section when the change is purely internal (a refactor, a lib with full test coverage) and there's nothing meaningful to click.
-  - Run `gh pr ready` to take it out of draft once the body is accurate and all checks pass.
+  - Leave the PR in draft and tell the user it's ready for their review. Never run `gh pr ready`: publishing is the user's call.
 - Finish the branch per step 3: merge the PR, and **delete the branch** (unless the repo's convention says otherwise). Commit messages reference what the spec delivered.
 
 ## Rules
 
 - **Align with the repo's standards first (step 0), house standard as fallback.** Before writing anything, check for the repo's own spec format, git/PR workflow, and PR-body convention, and follow them. This skill's `references/` templates and draft-PR lifecycle are the *default* for repos that have no convention — and are overridden only by a repo convention or an explicit user opt-out, never silently.
 - **No production code before the spec exists** for non-trivial work
+- **Shared external state gets its subsystem specced first** (step 1b): name it, spec its model and convergence, and give it an invariants and failure-mode table whose rows become tests. Recommend a walking skeleton and a boundary review when it spans several PRs.
 - **The spec defines goals, not code.** Specs should rarely contain code — only an exact contract (API signature, wire format, data shape) that prose can't express unambiguously. Code that explains *how* you'll build it belongs in the implementation; putting it in the spec defeats spec-first thinking.
 - **No implementation before a reviewed, goal-aligned failing test.** Within each section: write the failing test, have it reviewed against the spec's goal (via `/step-back`), align, *then* implement. A passing test that doesn't prove the goal is worse than no test.
 - **Parallelise independent sections by default.** Before starting implementation, scan all spec sections for file-overlap and data dependencies. Dispatch independent sections (and independent slices) in parallel — a single message with multiple Agent tool calls. Only serialise when section N genuinely needs section N-1's output. Never serialise out of habit or caution — the cost of needless serialisation lands entirely on the user's wait time.
@@ -119,7 +150,7 @@ Run exactly the checks the spec's "Test plan" section names. Every item must pas
 - **Branch per the repo's blueprint** — follow the repo's git/PR convention if it has one; otherwise feature-branch → PR → merge → delete the branch when done
 - **Open the PR as a draft, seeded from the spec, before implementing** — but only in repos that use PRs; repos that commit straight to the default branch have no PR step. The body is the spec's public face: header/status, summary, spec link, an acceptance-criteria checklist, key decisions, scope, and sibling-PR relationships, with authorship credited per repo convention.
 - **The PR body never diverges from the code** — sync it as each section lands (tick the checklist, update decisions/scope when the build drifts), edited in place to read as current truth, not a changelog. Spec, code, and PR body stay in lockstep.
-- **Add manual-verification steps to the PR body at close-out when relevant** — a checklist of concrete, tickable steps (setup, actions, what to observe, how to cross-check) for any user-observable behaviour; skip for purely internal changes. Flip out of draft (`gh pr ready`) only once the body is accurate and checks pass.
+- **Add manual-verification steps to the PR body at close-out when relevant** — a checklist of concrete, tickable steps (setup, actions, what to observe, how to cross-check) for any user-observable behaviour; skip for purely internal changes. The PR stays draft; the user publishes it.
 - **Always invoke `swe-best-practices` before implementing each section** (step 5d) — SDD auto-loads it (via the Skill tool), whether or not the user invoked it explicitly. SDD owns the workflow; `swe-best-practices` governs the shape of the code it produces.
 
 ## When to skip

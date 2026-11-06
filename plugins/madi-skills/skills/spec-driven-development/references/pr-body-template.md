@@ -1,75 +1,45 @@
-# PR-body template (house standard)
+<!--
+House PR body, the fallback when the repo has no PR template (a repo template wins; fold these
+sections into it). Prose paragraphs; bullets only for genuinely list-shaped content. Every ticket or
+PR reference is a markdown link with its number and title. The PR is opened, and stays, a draft.
+-->
 
-The fallback PR-body shape for `/spec-driven-development` in repos that use PRs
-but have **no** PR template / body convention of their own. If the repo has a
-`.github/PULL_REQUEST_TEMPLATE.md`, a house style visible in recent sibling PRs,
-or an `## Agent skills` / contributing convention, prefer **that** and only
-borrow the ideas below (living checklist, spec link, manual-test section) where
-the repo's template has no equivalent.
+<Opening paragraph: the big picture. Where this PR sits in the larger feature (epic or ticket, the
+stack, what comes before and after), so a reviewer who knows nothing can orient. Link the spec:
+`.claude/specs/<slug>.md` (status: implementing).>
 
-The body is the spec's public face: a reviewer should understand the change
-without opening the diff. It is a **living record** — open it as a draft seeded
-from the spec, keep it in lockstep with the code as each section lands, and
-finalise it (status flip + manual-test steps) at close-out. Always edit in place
-so it reads as *current truth*, never a changelog of edits.
+## Current state on UAT
 
-Placeholders are `<…>`. Drop any section that doesn't apply (e.g. "Relationship
-to other PRs" for a standalone change).
+<What the app does in this area today, user-visible where possible. Use the repo's staging or test
+environment's name if it has no UAT.>
 
----
+## Future state after this PR
 
-```markdown
-# <PR title> — <one-line what-it-does>
+<What changes once it merges. If nothing is visible yet (infra, schema, a lower stack PR), say so
+plainly.>
 
-**Milestone / board:** <ref, if the repo tracks one>
-**Status:** 🚧 Draft — implementing   <!-- → ✅ Implemented — ready for review at close-out -->
-**Relationship:** <independent / depends on #<n> / blocks #<n>>
+## What changed
 
-<One-paragraph plain-language summary of what the change does and why.>
+<The change, in prose. Then the acceptance checklist from the spec, unticked at draft time and ticked
+as each section goes green:>
 
-## 📄 Spec
-`<.claude/specs/<slug>.md>` — Status: <draft → implemented>.
+- [ ] <spec acceptance criterion 1>
+- [ ] <spec acceptance criterion 2>
 
-## ✅ What <will land / landed>
-<!-- One item per acceptance criterion. Unchecked at draft; tick each as its
-     section goes green. Mention the key file(s) the reviewer should look at. -->
-- [ ] <criterion> — <where it lives / what it does>
-- [ ] <criterion> — <…>
+## Why
 
-## 🔑 Key decisions
-<!-- Lifted from the spec's "Key decisions"; refine in place if the build
-     changes one, noting it was refined during build. -->
-- **<decision>**: <choice> — <reasoning / trade-off>
+<The reason, citing the ticket and any ADR. Key decisions from the spec, refined as the build teaches
+more. Out of scope, with where it goes.>
 
-## 🔎 Scope
-<What this PR covers, and explicitly what it does NOT — deferred sub-behaviours
-move here from "what will land" with the reason and the follow-up PR.>
+## Testing
 
-## Relationship to other PRs
-<Dependencies, what's deferred to a follow-up, board references.>
+<Automated tests run, with counts, and the teeth-checks (which mutation turned which tests red).>
 
----
+<Manual test, when there is user-observable behaviour; otherwise one line saying why there's nothing
+to test by hand:>
 
-## 🧪 Manual test — verify in the UI
-<!-- Add at close-out ONLY when the change has user-observable behaviour a
-     reviewer should confirm by hand. Skip entirely for purely internal changes
-     (refactors, libs with full test coverage). Write as a checklist a human
-     ticks as they go. -->
+- [ ] Setup: <how to run the stack, or which environment, and any caveat such as "only after #X lands">
+- [ ] <Step>: <what to do> → <what you should see>
+- [ ] Cross-check: <how to confirm it's real: DevTools, logs, a second source>
 
-**What this proves:** <the one behaviour the steps are demonstrating.>
-**Where it works:** <local / remote / both; any env caveat, e.g. "only after #<n> lands">.
-
-### Setup
-- [ ] <how to run the stack / open the app / where to look>
-
-### Steps
-- [ ] <action> → <what you should observe>
-- [ ] <cross-check the observation against a second source — DevTools, logs, a quoted id>
-- [ ] <action> → <what should change>
-
-<!-- Authorship credit per repo convention. If the repo follows the
-     coderabbit-resolve style: -->
-Author: Claude <model>, <effort>
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-```
+<Authorship per repo convention, e.g. the 🤖 Generated with Claude Code footer.>

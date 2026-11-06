@@ -43,7 +43,7 @@ The run is complete only when:
 - All task-list items are completed (or explicitly deferred with a recorded reason)
 - Tests + typecheck + lint + build are green (verified, not assumed)
 - Work is committed and pushed
-- Any review loop the task asked for (e.g. CodeRabbit) has converged to no outstanding issues
+- Any review loop the task asked for (e.g. Claude Code Review via `/review-resolve`) has converged to no outstanding issues
 - A final `/discord-ping` summarizes what shipped
 
 ## Red flags — you're doing it wrong

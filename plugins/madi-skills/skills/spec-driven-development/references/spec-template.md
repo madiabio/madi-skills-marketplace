@@ -1,50 +1,46 @@
-# Spec template (house standard)
+# <Title: what will be true when this is done>
 
-The fallback spec shape for `/spec-driven-development` when the repo has no spec
-convention of its own. If the repo already has a spec format (an existing
-`.claude/specs/`, `docs/specs/`, a PRD/ADR layout, a template file), prefer
-**that** — this is only the default.
-
-**A spec defines design *goals*, not implementation. It should rarely contain
-code.** Write in terms of behavior, constraints, and acceptance criteria. Only
-include a code snippet when a contract genuinely can't be expressed in prose
-without ambiguity — an exact public API signature, a wire/serialization format,
-a specific data shape another system depends on. If you're tempted to write code
-to explain *how* you'll build it, that belongs in the implementation, not the
-spec. Keep it tight; a spec is not a novel — if it's longer than the code, it's
-too long.
-
----
-
-```markdown
-# <Title>
-
-**Status:** draft
-**Scope:** <one line — what this delivers>
+**Status:** draft | aligned | implementing | implemented
+**Ticket / ADR:** <links, number and title in the link text>
 
 ## Goal
-<one paragraph: what this accomplishes and why it matters>
 
-## Behavior & design goals
-<what must be TRUE when this is done, in terms of observable behavior and
-design properties — not how it's coded. Each goal should be something a test
-can later prove. Describe the data flow and the modules/boundaries involved at
-the level of responsibility, not implementation. Name files only when the
-boundary itself is a decision.>
+One or two sentences: what must be true afterwards, for whom, and why it matters.
 
-## Acceptance criteria
-- <a concrete, checkable statement of done — these become the test sections in the build loop, and the "what will land" checklist in the PR body>
+## Design goals and behaviour
+
+What the system must do, as behaviour and constraints, not code. One numbered cluster per
+acceptance-criterion group; each becomes one TDD section in step 5.
+
+1. **<Cluster name>.** The behaviour, in prose. *Acceptance:* the observable condition a test checks.
+2. ...
+
+## Shared external state (step 1b)
+
+Either "No shared external state", or the subsystem this work plugs into:
+
+- **Subsystem:** its name, and what it owns.
+- **Model:** what is recorded, and whether facts are appended or a slot is overwritten.
+- **States:** the states, and who moves each one.
+- **Convergence:** how our copy catches up with the external system's truth (webhook, sweep).
+
+| Invariant                 | Failure scenario                                                         | Expected outcome                       |
+| ------------------------- | ------------------------------------------------------------------------ | -------------------------------------- |
+| <e.g. money is never lost> | Crash between steps / two writers / external down / retry / state changed after our read | <what happens; how it's detected and compensated if it can't be prevented> |
 
 ## Key decisions
-- **<decision>**: <choice> — <reasoning / trade-off>
+
+Each decision with its one-line reason; link an ADR when it's architectural.
 
 ## Out of scope
-- <what this explicitly does NOT do — deferred or rejected>
 
-## Risks & mitigations
-- <risk> → <mitigation>
+What this explicitly does not do, and where it goes instead.
+
+## Open questions
+
+Resolve every one before step 5. An unresolved question here becomes a bug in the code.
 
 ## Test plan
-<how you'll prove it works — concrete checks and commands, not "write tests".
-Maps to the acceptance criteria above.>
-```
+
+The exact checks step 6 runs: test files or suites, teeth-checks (which mutation must turn red), and
+any manual check.
